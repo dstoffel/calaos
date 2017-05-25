@@ -1,0 +1,47 @@
+from automation import *
+Rule = automation.Rule
+url='https://__IP__/api.php'
+user='__USER__'
+pw='__PASS__'
+sym=True
+state = {
+	'allume' : 'true',
+	'eteins' : 'false',
+	'ouvre' : 'up',
+	'ferme' : 'down',
+	'arrete' : 'toggle'
+}
+rules = [
+        Rule(id='action', pattern='(allume|eteins)', out='quoi', childs=[
+                Rule(id='what', pattern='(lampe|lumiere)', out='laquel?', childs=[
+                        Rule(id='where', pattern='buanderie', out='output_26'),
+                        Rule(id='where', pattern='cuisine', out='output_29'),
+                        Rule(id='where', pattern='toilette', out='output_57'),
+                        Rule(id='where', pattern='salle a manger', out='output_25'),
+                        Rule(id='where', pattern='salon', out='output_39'),
+                        Rule(id='where', pattern='salle de bain', out='output_29'),
+                        Rule(id='where', pattern='salle de douche', out='output_56'),
+                        Rule(id='where', pattern='chambre d ami', out='output_29'),
+                        Rule(id='where', pattern='chambre thea', out='output_2'),
+                        Rule(id='where', pattern='chambre parent', out='output_2'),
+                ]),
+                Rule(id='what', pattern='spot|spots', out='lequel?', childs=[
+                        Rule(id='where', pattern='cuisine', out='output_2'),
+                        Rule(id='where', pattern='escalier', out='output_2'),
+		])
+        ]),
+	Rule(id='action', pattern='(ouvre|ferme|arrete)', out='quoi', childs=[
+		Rule(id='what', pattern='les volets', out='lesquel?', childs=[
+			Rule(id='where', pattern='buanderie', out='output_00'),
+			Rule(id='where', pattern='cuisine', out='output_22'),
+			Rule(id='where', pattern='toilette', out='output_00'),
+			Rule(id='where', pattern='salle a manger', out='output_00'),
+			Rule(id='where', pattern='salon', out=
+				['output_15', 'output_16', 'output_18', 'output_19','output_20', 'output_21', 'output_22', 'output_23', 'output_24']
+			)
+		])
+		
+	])
+]
+
+
