@@ -8,7 +8,11 @@ class calaos(automation):
                         self.register_rule(rule)
 
 	def callback(self, data, m, rdata):
-		state = cfg.state[data['action']]
+		try:
+			state = m.group('value')
+		except IndexError:
+			state = cfg.state[data['action']]
+
 		output = data['out']
 		self.log('executing : %s ' % data)
 		return self.set_state(state, output)
@@ -39,7 +43,7 @@ class calaos(automation):
 				set_state(state,r)
 			return "c'est fait"
 		current_state = self.get_state(ref)
-		self.debug('setting state %s for %s ' % (state, ref))
+		self.log('setting state %s for %s ' % (state, ref))
 		if current_state == state:
 			self.debug('ref %s already in state %s' % (ref, state))
 			return "c'est déjà fait"
