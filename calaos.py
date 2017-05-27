@@ -18,10 +18,10 @@ class calaos(automation):
 		return self.set_state(state, output)
 
 	#https://calaos.fr/wiki/fr/protocole_json
-	def do_calaos(query):
+	def do_calaos(self, query):
 		data = {'cn_user' : cfg.user, 'cn_pass' : cfg.pw}
 		data.update(query)
-		debug(data)
+		self.debug(data)
 		r = requests.post(cfg.url, json=data,verify=0)
 		return r.json()
 
@@ -40,7 +40,7 @@ class calaos(automation):
 		#TODO: handle correctly array
 		if str(type(ref)) == "<type 'list'>":
 			for r in ref:
-				set_state(state,r)
+				self.set_state(state,r)
 			return "c'est fait"
 		current_state = self.get_state(ref)
 		self.log('setting state %s for %s ' % (state, ref))
