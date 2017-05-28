@@ -39,7 +39,7 @@ for room in rooms:
 		data[n][roomname]['outputs'].append((c(i), t))
 
 value_e = ',execonwait=True, context=False, childs=[c_val]'
-out = "rules = [\n\tRule(id='action', pattern='(allume|eteins)', out='quoi?', childs=["
+out = "rules = [\n\tRule(id='action', pattern='(allume|eteins|eteint)', out='quoi?', childs=["
 for what in data:
 	c=[]
         for room in data[what]:
