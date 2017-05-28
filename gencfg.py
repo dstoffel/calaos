@@ -8,9 +8,9 @@ out=''
 data = {}
 
 def c(s):
-	o = s
+	o = s.lower()
 	o = o.replace('-', ' ')
-	o = o.replace('[DIM]', '')
+	o = o.replace('[dim]', '')
 	return o.lower().strip()
 		
 
@@ -32,7 +32,7 @@ for room in rooms:
 		if not roomname in data[n]:
 			data[n][roomname] = {'outputs': []}
 
-		data[n][roomname]['outputs'].append((i, t))
+		data[n][roomname]['outputs'].append((c(i), t))
 
 value_e = ',execonwait=True, context=False, childs=[c_val]'
 out = "rules = [\n\tRule(id='action', pattern='(allume|eteins)', out='quoi?', childs=["
@@ -42,7 +42,7 @@ for what in data:
                 for output in data[what][room]['outputs']:
 			t = output[1]
 			if t == 'WODigital':
-				r = "\n\t\t\tRule(id='where', pattern='%s', out='%s')," % (room, output[0]) 
+				r = "\n\t\t\tRule(id='where', pattern='%s', out='%s')," % (room, output[0])
 			elif t == 'WODali':
 				r = "\n\t\t\tRule(id='where', pattern='%s', out='%s'%s)," % (room, output[0], value_e) 
 			else:
