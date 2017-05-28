@@ -9,13 +9,21 @@ data = {}
 
 def c(s):
 	o = s.lower()
-	o = o.replace('-', ' ')
+#	o = o.replace('-', ' ')
 	o = o.replace('[dim]', '')
 	o = o.replace('[', '')
 	o = o.replace(']','')
 	o = o.replace('(', '')
 	o = o.replace(')','')
-	return o.lower().strip()
+	o = o.lower().strip()
+	m = {
+		'salle-a-manger' : 'salle a manger',
+		'salle-de-bain' : 'salle de baain',
+		'salle-de-douche' : 'salle de douche',
+	}
+	if o in m:
+		o = m[o]
+	return o
 		
 
 for room in rooms:
