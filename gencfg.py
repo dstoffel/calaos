@@ -11,6 +11,10 @@ def c(s):
 	o = s.lower()
 	o = o.replace('-', ' ')
 	o = o.replace('[dim]', '')
+	o = o.replace('[', '')
+	o = o.replace(']','')
+	o = o.replace('(', '')
+	o = o.replace(')','')
 	return o.lower().strip()
 		
 
