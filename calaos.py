@@ -13,7 +13,7 @@ class calaos(automation):
 		except IndexError:
 			state = cfg.state[data['action']]
 
-		output = data['out']
+		output = data['what_out']
 		self.log('executing : %s ' % data)
 		return self.set_state(state, output)
 
