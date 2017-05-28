@@ -48,7 +48,8 @@ class calaos(automation):
 				if current_state != state:
 					a = 1
 			if a:
-				self.set_state(state,r)
+				for r in ref:
+					self.set_state(state,r)
 				return "c'est fait"
 			else:
 				self.debug('ref %s already in state %s' % (ref, state))
