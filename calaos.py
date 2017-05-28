@@ -10,10 +10,11 @@ class calaos(automation):
 	def callback(self, data, m, rdata):
 		try:
 			state = m.group('value')
+			state = 'set %s' %state
 		except IndexError:
 			state = cfg.state[data['action']]
 
-		output = data['what_out']
+		output = data['where_out']
 		self.log('executing : %s ' % data)
 		return self.set_state(state, output)
 
