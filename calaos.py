@@ -22,7 +22,7 @@ class calaos(automation):
 	def do_calaos(self, query):
 		data = {'cn_user' : cfg.user, 'cn_pass' : cfg.pw}
 		data.update(query)
-		self.debug(data)
+		self.debug('Sending to calaos : %s' % data)
 		r = requests.post(cfg.url, json=data,verify=0)
 		return r.json()
 
@@ -41,27 +41,36 @@ class calaos(automation):
 		if cfg.sym:
 			self.debug('set_state %s to %s SIMULATE, DONE' % ( ref, state))
 			return "c'est fait"
+		is_input = False
 		if type(ref) == type([]):
-			a = 0
-			for r in ref:
-				current_state = self.get_state(r)
-				if current_state != state:
-					a = 1
-			if a:
-				for r in ref:
-					self.set_state(state,r)
-				return "c'est fait"
-			else:
-				self.debug('ref %s already in state %s' % (ref, state))
-				return "c'est déjà fait"
+			if 'input' in ref[0]:
+				is_input = True
 		else:
-			current_state = self.get_state(ref)
-			if current_state == state:
-				self.debug('ref %s already in state %s' % (ref, state))
-				return "c'est déjà fait"
-
+			if 'input' in ref:
+				is_input = True
+		if is_input == True:
+			if type(ref) == type([]):
+				for r in ref:
+					self.set_state(state, r)
+			else:
+				query = {'action' : 'set_state', 'id' : ref, 'value' : state, 'type': 'input'}
+		else:
+			if type(ref) == type([]):
+				a = 0
+				for r in ref:
+					current_state = self.get_state(r)
+					if current_state != state:
+						a = 1
+				if a:
+					for r in ref:
+						self.set_state(state,r)
+					return "c'est fait"
+				else:
+					self.debug('ref %s already in state %s' % (ref, state))
+					return "c'est déjà fait"
+			else:
+				query = {'action' : 'set_state', 'id' : ref, 'value' : state, 'type': 'output'}
 		self.log('setting state %s for %s ' % (state, ref))
-		query = {'action' : 'set_state', 'id' : ref, 'value' : state, 'type': 'output'}
 		r = self.do_calaos(query)
 		if r['success'] != 'true':
 			self.debug('set_state %s to %s ERROR' % ( ref, state))
