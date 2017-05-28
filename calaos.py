@@ -8,15 +8,26 @@ class calaos(automation):
                         self.register_rule(rule)
 
 	def callback(self, data, m, rdata):
-		try:
-			state = m.group('value')
-			state = 'set %s' %state
-		except IndexError:
-			state = cfg.state[data['action']]
+		print data
+		if type(data['where_out']) == type([]):
+			refs = data['where_out']
+		else:
+			refs = [data['where_out']]
 
-		output = data['where_out']
-		self.log('executing : %s ' % data)
-		return self.set_state(state, output)
+		vals = {}
+		for ref in refs:
+			if 'input_' in ref:
+				vals[ref] = 'true'
+			else:
+				try:
+					state = m.group('value')
+					state = 'set %s' %state
+				except IndexError:
+					state = cfg.state[data['action']]
+				vals[ref] = state
+
+		self.log('executing : %s ' % vals)
+		return self.set_state(vals)
 
 	#https://calaos.fr/wiki/fr/protocole_json
 	def do_calaos(self, query):
@@ -37,45 +48,50 @@ class calaos(automation):
 			self.debug('current state for %s is %s ' % (ref, current_state))
 			return r['outputs'][ref]
 
-	def set_state(self,state,ref):
-		if cfg.sym:
-			self.debug('set_state %s to %s SIMULATE, DONE' % ( ref, state))
-			return "c'est fait"
-		is_input = False
-		if type(ref) == type([]):
-			if 'input' in ref[0]:
-				is_input = True
-		else:
+	def set_state(self,vals):
+		queries = []
+		i = 0
+		for ref in vals:
 			if 'input' in ref:
-				is_input = True
-		if is_input == True:
-			if type(ref) == type([]):
-				for r in ref:
-					self.set_state(state, r)
+				t = 'input'
+				i = 1
 			else:
-				query = {'action' : 'set_state', 'id' : ref, 'value' : state, 'type': 'input'}
-		else:
-			if type(ref) == type([]):
-				a = 0
-				for r in ref:
-					current_state = self.get_state(r)
-					if current_state != state:
-						a = 1
-				if a:
-					for r in ref:
-						self.set_state(state,r)
-					return "c'est fait"
-				else:
-					self.debug('ref %s already in state %s' % (ref, state))
-					return "c'est déjà fait"
-			else:
-				query = {'action' : 'set_state', 'id' : ref, 'value' : state, 'type': 'output'}
-		self.log('setting state %s for %s ' % (state, ref))
-		r = self.do_calaos(query)
-		if r['success'] != 'true':
-			self.debug('set_state %s to %s ERROR' % ( ref, state))
-			return "une erreur est intervenue"
-		else:
-			self.debug('set_state %s to %s done' % ( ref, state))
+				t = 'output'
+			state = vals[ref]
+			query = {'action' : 'set_state', 'id' : ref, 'value' : state, 'type': t}
+			queries.append(query)
+
+		self.debug("calaos rules : %s" % queries)
+		if cfg.sym:
+			self.debug('set_state %s  SIMULATE, DONE' %  vals)
 			return "c'est fait"
 
+		if i:
+			e = 0
+			for q in queries:
+				r = self.do_calaos(q)
+				if r['success'] != 'true':
+					e=1
+			if e:
+				return "une erreur est intervenue"
+			else:
+				return "c'est fait"
+		else:
+			diff = 0
+			for q in queries:
+				if q['value'] != self.get_state(q['id']):
+					diff = 1
+			if diff:
+				e = 0
+				for q in queries:
+					r = self.do_calaos(q)
+					if r['success'] != 'true':
+						e=1
+				if e:
+					return "une erreur est intervenue"
+				else:
+					return "c'est fait"
+
+			else:
+				return "c'est déjà fait"
+		
